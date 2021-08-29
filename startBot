@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "Starting the discord bot using pm2..."
+pm2 start ecosystem.config.js
+echo "Done!"

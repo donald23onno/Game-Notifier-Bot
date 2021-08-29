@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "Restarting the discord bot using pm2..."
+pm2 restart ecosystem.config.js
+echo "Done!"

@@ -1,3 +1,6 @@
 {
-    "prefix": "!"
+    "prefix": "!",
+    "civ6TurnNotification": "***# NEW TURN #***\nThere is a new turn on a PBC game!\nGo here to launch the game: steam://run/289070/\n\n***# Game information: #***\n**Game:** {Value1}\n**Current player:** {Value2}\n**Current turn in game:** {Value3}\n*Timestamp:* {DateTime.Now}\n\n\n",
+    "owTurnNotification": "***# NEW TURN #***\nThere is a new turn on a PBC game!\nGo here to launch the game: com.epicgames.launcher://apps/Nightjar?action=launch&silent=true\n\n***# Game information: #***\n**Game:** {game}\n**Current player:** {player}\n**Current turn in game:** {turn}\n*Timestamp:* {DateTime.Now}\n\n\n",
+    "keepAliveTime": 1800000
 }

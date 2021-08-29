@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "Stopping the discord bot using pm2..."
+pm2 stop ecosystem.config.js
+echo "Done!"
