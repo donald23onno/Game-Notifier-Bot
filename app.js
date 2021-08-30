@@ -8,7 +8,7 @@ const { } = require('./config.json');
 const express = require('express');
 const bodyParser = require('body-parser');
 // Get the Discord handling and helper we wrote
-const { client, discordReply, civ6Notification, owNotification, getLastChannelMessage } = require('./discord_handler.js');
+const { client, discordReply, civ6Notification, owNotification, discordCommandHandler } = require('./discord_handler.js');
 const { mysqlPool, mysqlQuery, emptyOrRows } = require('./helper.js');
 // I run this once in the nodeJS server.
 mysqlPool(process.env.DB_HOST, process.env.DB_USER, process.env.DB_PASS, process.env.DB_NAME);
@@ -20,6 +20,10 @@ bot = client(process.env.TOKEN);
 // And listening to some basic (test!) commands
 bot.on('messageCreate', async (message) => {
     await discordReply(message);
+});
+// And listening to slash commands!
+bot.on('interactionCreate', async (interaction) => {
+    await discordCommandHandler(interaction);
 });
 
 // Setting up the ExpressJS part of the app, we need to listen to POST requests.
@@ -63,12 +67,13 @@ webListener.post(/^(\/api|\/game)\/(Civ6|ow)\/([a-zA-Z0-9]+)/, async (request, r
         case 'civ6':
             returnStatus = 500;
             try {
-                if (!turnNotificationObject.hasOwnProperty('Value1') && !turnNotificationObject.hasOwnProperty('Value2') && !turnNotificationObject.hasOwnProperty('Value3')) {
+                if (!turnNotificationObject.hasOwnProperty('value1') && !turnNotificationObject.hasOwnProperty('value2') && !turnNotificationObject.hasOwnProperty('value3')) {
                     returnStatus = 400;
                     throw ('Critical properties are missing from the incoming turn notification! Aborting');
                 };
-                mentionedPlayer = emptyOrRows(await mysqlQuery('select * from `Players` where `game_player_name` like ?', ['%' + turnNotificationObject.Value2 + '%']));
-                mentionedGame = emptyOrRows(await mysqlQuery('select * from `Games` where `game` = ?', [turnNotificationObject.Value1]));
+                let queryPlayer = turnNotificationObject.value2.replace('_', '\_');
+                mentionedPlayer = emptyOrRows(await mysqlQuery('select * from `Players` where `game_player_name` like ?', ['%' + queryPlayer + '%']));
+                mentionedGame = emptyOrRows(await mysqlQuery('select * from `Games` where `game` = ?', [turnNotificationObject.value1]));
                 returnStatus = await civ6Notification(turnNotificationObject, mentionedPlayer, mentionedGame);
             } catch (error) {
                 console.log(`ERR : Error occurred while getting game or player from database: ${error}`);
@@ -86,7 +91,8 @@ webListener.post(/^(\/api|\/game)\/(Civ6|ow)\/([a-zA-Z0-9]+)/, async (request, r
                     returnStatus = 400;
                     throw ('Critical properties are missing from the incoming turn notification! Aborting');
                 };
-                mentionedPlayer = emptyOrRows(await mysqlQuery('select * from `Players` where `game_player_name` like ?', ['%' + turnNotificationObject.player + '%']));
+                let queryPlayer = turnNotificationObject.player.replace('_', '\_');
+                mentionedPlayer = emptyOrRows(await mysqlQuery('select * from `Players` where `game_player_name` like ?', ['%' + queryPlayer + '%']));
                 mentionedGame = emptyOrRows(await mysqlQuery('select * from `Games` where `game` = ?', [turnNotificationObject.game]));
                 returnStatus = await owNotification(turnNotificationObject, mentionedPlayer, mentionedGame);
             } catch (error) {

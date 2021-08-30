@@ -51,6 +51,25 @@ const client = (discordToken) => {
     return bot;
 };
 
+const discordCommandHandler = async (interaction) => {
+    // Let's go for slash commands!
+    if (!interaction.isCommand()) return;
+    
+    switch (interaction.commandName) {
+        case 'ping':
+            await interaction.reply('Pong!');
+            break;
+        case 'server':
+            await interaction.reply('Server info!');
+            break;
+        case 'user':
+            await interaction.reply('User information!');
+            break;
+        default:
+            console.log(`This shouldn't happen... used command was: ${interaction.commandName}`);
+    }
+};
+
 const discordReply = async (message) => {
     let messageSend;
     if (!message.content.startsWith(`${prefix}`) || message.author.bot) return;
@@ -88,19 +107,19 @@ const discordReply = async (message) => {
 const civ6Notification = async (turnNotification = {}, mentionedPlayer = [], mentionedGame = []) => {
     let returnStatus = 400;
     // This is called when it's determined that we get Civ6 notification from a game
-    // Value1 = the name of the game.
-    // Value2 = the name of the player.
-    // Value3 = the current turn in the game.
-    const { Value1, Value2, Value3 } = turnNotification;
-    const turnPlayer = existingPlayer(mentionedPlayer, Value2);
-    const turnGame = existingGame(turnPlayer, mentionedGame, Value3, Value1);
+    // value1 = the name of the game.
+    // value2 = the name of the player.
+    // value3 = the current turn in the game.
+    const { value1, value2, value3 } = turnNotification;
+    const turnPlayer = existingPlayer(mentionedPlayer, value2);
+    const turnGame = existingGame(turnPlayer, mentionedGame, value3, value1);
     // Actual notification that I'd rather have in the config.json, but for now put here, due to not having a templating library yet.
     const civ6TurnNotification = `***# NEW TURN #***\nThere is a new turn on a Civilization VI PBC game!\nGo here to launch the game: steam://run/289070/\n\n***# Game information: #***\n**Game:** ${turnGame.gameName}\n**Current player:** ${turnPlayer.mention}\n**Current turn in game:** ${turnGame.currentTurn}\n*Timestamp (UTC):* ${currentDateTime()}\n`;
     console.log(civ6TurnNotification);
     if (turnGame.hasOwnProperty('channelToNotify')) {
         let results = emptyOrRows(await mysqlQuery('select `last_reported_turn`, `turn_player` from `Games` where `id` = ?', [turnGame.id]));
         if (results.length > 0 && results[0].last_reported_turn == turnGame.currentTurn && results[0].turn_player == turnGame.currentPlayer) {
-            console.log(`Turn number ${turnGame.currentTurn} for player ${Value2} was already reported! Not reporting again.`);
+            console.log(`Turn number ${turnGame.currentTurn} for player ${value2} was already reported! Not reporting again.`);
             returnStatus = 200;
         } else {
             if (results.length > 0) {
@@ -125,23 +144,15 @@ const owNotification = async (turnNotification = {}, mentionedPlayer = [], menti
     // turn = the current turn in the game.
     const { game, turn, player } = turnNotification;
 	const turnPlayer = existingPlayer(mentionedPlayer, player);
-    const turnGame = existingGame(turnPlayer, mentionedGame, turn, game);
+    const turnGame = await existingGame(turnPlayer, mentionedGame, turn, game);
     // Actual notification that I'd rather have in the config.json, but for now put here, due to not having a templating library yet.
     const owTurnNotification = `***# NEW TURN #***\nThere is a new turn on an Old World PBC game!\nGo here to launch the game: com.epicgames.launcher://apps/Nightjar?action=launch&silent=true\n\n***# Game information: #***\n**Game:** ${turnGame.gameName}\n**Current player:** ${turnPlayer.mention}\n**Current turn in game:** ${turnGame.currentTurn}\n*Timestamp (UTC):* ${currentDateTime()}\n`;
     console.log(owTurnNotification);
     if (turnGame.hasOwnProperty('channelToNotify')) {
-        let results = emptyOrRows(await mysqlQuery('select `last_reported_turn`, `turn_player` from `Games` where `id` = ?', [turnGame.id]));
-        if (results.length > 0 && results[0].last_reported_turn == turnGame.currentTurn && results[0].turn_player == turnGame.currentPlayer) {
+        if (turnGame.hasOwnProperty('id') && turnGame.id !== null && mentionedGame[0].last_reported_turn == turnGame.currentTurn && mentionedGame[0].turn_player == turnGame.currentPlayer) {
             console.log(`Turn number ${turnGame.currentTurn} for player ${Value2} was already reported! Not reporting again.`);
             returnStatus = 200;
         } else {
-            if (results.length > 0) {
-                try {
-                    let results = await mysqlQuery('update `Games` set `last_reported_turn` = ?, `turn_player` = ?, `last_change` = current_timestamp() where `id` = ?', [turnGame.currentTurn, turnGame.currentPlayer, turnGame.id]);
-                } catch (error) {
-                    console.log(`ERR : An error occured on updating database: ${error}`);
-                };
-            };
             sendMessageToChannel(owTurnNotification, turnGame.channelToNotify);
             returnStatus = 200;
         }
@@ -184,9 +195,14 @@ const existingPlayer = (playerArray = [], turnObjectPlayer = '') => {
     };
 };
 
-const existingGame = (playerObject = {}, gameArray = [], turnObjectTurn = '', turnObjectGame = '') => {
+const existingGame = async (playerObject = {}, gameArray = [], turnObjectTurn = '', turnObjectGame = '') => {
     if (gameArray.length > 0) {
         // some code to deal with a know game
+        try {
+            let results = await mysqlQuery('update `Games` set `last_reported_turn` = ?, `turn_player` = ?, `last_change` = current_timestamp() where `id` = ?', [turnObjectTurn, playerObject.id, gameArray.id]);
+        } catch (error) {
+            console.log(`ERR : An error occured on updating database: ${error}`);
+        };
         return gameObject = {
             'id': gameArray[0].id,
             'currentTurn': turnObjectTurn,
@@ -213,16 +229,10 @@ const existingGame = (playerObject = {}, gameArray = [], turnObjectTurn = '', tu
     };
 };
 
-
-//bot.on('interactionCreate', async (interaction) => {
-//    console.log(`Triggering interaction: ${interaction}`);
-//});
-
-
-
 module.exports = {
     client,
     discordReply,
+    discordCommandHandler,
     civ6Notification,
     owNotification,
 };
