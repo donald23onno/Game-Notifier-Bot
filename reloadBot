@@ -1,5 +1,5 @@
 #!/bin/bash
 
 echo "Reloading the discord bot using pm2..."
-pm2 reload ecosystem.config.js
+pm2 reload ecosystem.config.js --time
 echo "Done!"

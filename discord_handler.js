@@ -1,14 +1,16 @@
+// Application config stuff goes into the config.json.
+const { prefix, keepAliveCheck, keepAliveTime, keepAliveMessages } = require('./config.json');
+const { mysqlQuery, emptyOrRows, currentDateTime } = require('./helper.js');
+
 // Main bot file that will also handle immediate responses.
+console.log(`Current time is: ${currentDateTime()}`);
 console.log('This is the Game Notifier Bot. It\'s meant for giving out turn notifications for asynchronous turns in games.');
 console.log('Good examples of this are Sid Meier\'s Civilization 6 and Soren Johnson\'s Old World.\n');
 console.log('Bot is now loading... Please wait...\n');
 //console.log('...');
 
-// Application config stuff goes into the config.json.
-const { prefix, keepAliveTime } = require('./config.json');
 // The "standard" discord library for NodeJS
 const Discord = require('discord.js');
-const { mysqlQuery, emptyOrRows, currentDateTime } = require('./helper.js');
 
 let bot;
 
@@ -28,24 +30,30 @@ const client = (discordToken) => {
     bot.once('ready', () => {
         bot.user.setActivity('for new turns!', { type: 'WATCHING' });
         console.log('Bot is now finished loading and... Ready!');
+        console.log(`Current time is: ${currentDateTime()}`);
         console.log('-----------------------------------------------------------------------------------');
         setInterval(async () => {
-            let results = emptyOrRows(await mysqlQuery('select `discord_channel_id` from `Games` where `active` = 1'));
+            let results = emptyOrRows(await mysqlQuery('select `game`, `discord_channel_id`, `last_change` from `Games` where `active` = 1'));
             if (results.length > 0) {
                 // Iterate over active games to see if the turn notification channel needs a keep alive message.
                 // We only need to do that if the channel is a thread though.
                 for (let activeGame of results) {
+                	console.log(`${currentDateTime()} : contents of activeGame:`);
+                	console.log(activeGame);
+                	console.log(`--------------------------------------------------------------------------`);
                 	let turnThread = await bot.channels.fetch(activeGame.discord_channel_id); //Test thread on my own server
                     if (turnThread.isThread()) {
                         let messages = await turnThread.messages.fetch({ limit: 1 });
                         let lastMessage = messages.first();
-                        if ((Date.now() - lastMessage.createdTimestamp) > (23 * 60 * 60 * 1000)) {
-                        	messageSend = turnThread.send(`Not much happening here ;) I'll keep the channel alive! Perhaps someone can play a turn in the mean time?`);
+                        if ((Date.now() - lastMessage.createdTimestamp) > keepAliveTime) {
+                            let messageToSend = Math.floor(Math.random() * keepAliveMessages.length);
+                            // const messageSend = turnThread.send(`Not much happening here ;) I'll keep the channel alive! Perhaps someone can play a turn in the mean time?`);
+                            const messageSend = turnThread.send(messageToSend);
                         };
                     };
                 };
             };
-        }, keepAliveTime);
+        }, keepAliveCheck);
     });
 
     return bot;

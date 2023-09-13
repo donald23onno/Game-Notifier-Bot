@@ -2,5 +2,20 @@
     "prefix": "!",
     "civ6TurnNotification": "***# NEW TURN #***\nThere is a new turn on a PBC game!\nGo here to launch the game: steam://run/289070/\n\n***# Game information: #***\n**Game:** {Value1}\n**Current player:** {Value2}\n**Current turn in game:** {Value3}\n*Timestamp:* {DateTime.Now}\n\n\n",
     "owTurnNotification": "***# NEW TURN #***\nThere is a new turn on a PBC game!\nGo here to launch the game: com.epicgames.launcher://apps/Nightjar?action=launch&silent=true\n\n***# Game information: #***\n**Game:** {game}\n**Current player:** {player}\n**Current turn in game:** {turn}\n*Timestamp:* {DateTime.Now}\n\n\n",
-    "keepAliveTime": 1800000
+    "keepAliveCheck": 1800000,
+    "keepAliveTime": 82800000,
+    "keepAliveMessages": [
+        "Not much happening here ;) I'll keep the channel alive! Perhaps someone can play a turn in the mean time?",
+        "Bump! -- https://i.giphy.com/media/MB6LWCpzubrzzVpsFi/giphy.webp ",
+        "Stayin Alive! -- https://music.youtube.com/watch?v=vOIeXBEKeLc&list=RDAMVMvOIeXBEKeLc ",
+        "Life is what happens when you're busy making other plans. --John Lennon",
+        "Life itself is the most wonderful fairy tale. --Hans Christian Andersen",
+        "Love the life you live. Live the life you love. --Bob Marley",
+        "Beep... Beep... Beep... Beep... --Sputnik I",
+        "It is entirely seemly for a young man killed in battle to lie mangled by the bronze spear. In his death all things appear fair. --Homer",
+        "If you chase two rabbits, you will lose them both. --Native American saying",
+        "The only thing worse than being talked about is not being talked about. --Oscar Wilde",
+        "Nothing travels faster than the speed of light with the possible exception of bad news, which obeys its own special laws. --Douglas Adams"
+    ],
+    "reminderAfterTime": 172800000
 }
