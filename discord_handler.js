@@ -38,13 +38,13 @@ const client = (discordToken) => {
                 // Iterate over active games to see if the turn notification channel needs a keep alive message.
                 // We only need to do that if the channel is a thread though.
                 for (let activeGame of results) {
-                	// console.log(`${currentDateTime()} : contents of activeGame:`);
+                	// console.log(`${currentDateTime()} : Currently checking:`);
                 	// console.log(activeGame);
                 	// console.log(`-----------------------------------------------------------------------------------`);
                     let turnThread = await bot.channels.fetch(activeGame.discord_channel_id); //Test thread on my own server
-                    console.log(`${ currentDateTime() } : Currently checking:\n`);
-                    console.log(turnThread);
-                    console.log('-----------------------------------------------------------------------------------');
+                    // console.log(`${ currentDateTime() } : Currently checking:\n`);
+                    // console.log(turnThread);
+                    // console.log('-----------------------------------------------------------------------------------');
                     if (turnThread.isThread()) {
                         let messages = await turnThread.messages.fetch({ limit: 1 });
                         let lastMessage = messages.first();
@@ -136,6 +136,8 @@ const civ6Notification = async (turnNotification = {}, mentionedPlayer = [], men
             returnStatus = 200;
         } else {
             if (results.length > 0) {
+                console.log(`${ currentDateTime } : Logging db-query parameters:`);
+                console.log(`currentTurn: ${ turnGame.currentTurn } \ncurrentPlayer: ${ turnGame.currentPlayer } \ngame id: ${ turnGame.id }`);
                 try {
                     let results = await mysqlQuery('update `Games` set `last_reported_turn` = ?, `turn_player` = ?, `last_change` = current_timestamp() where `id` = ?', [turnGame.currentTurn, turnGame.currentPlayer, turnGame.id]);
                 } catch (error) {
