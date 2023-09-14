@@ -49,7 +49,7 @@ webListener.post(/^(\/api|\/game)\/(Civ6|ow)\/([a-zA-Z0-9]+)/, async (request, r
     let reportedGame = request.params['1'].toLowerCase();
     let reportingUser = request.params['2'].toLowerCase();
     let turnNotificationObject = Object.assign({ reportingUser: reportingUser, reportedGame: reportedGame }, request.body);
-    console.log(`${currentDateTime()} : --= New ${reportedGame} turn notification received! =--`);
+    console.log(`${ currentDateTime() } : --= New ${ reportedGame } turn notification received! =--`);
     // Updating the notificationCache asap, to prevent double notifications. But only if a valid API key was used!
     let validApiKey = checkActiveApiKey(turnNotificationObject.reportingUser);
     if (!validApiKey) {
@@ -85,9 +85,15 @@ webListener.post(/^(\/api|\/game)\/(Civ6|ow)\/([a-zA-Z0-9]+)/, async (request, r
                 };
                 setNotificationCache(turnNotificationObject.value1, turnNotificationObject.value3, turnNotificationObject.value2);
                 let queryPlayer = turnNotificationObject.value2.replace(/_/g, '\\_');
-                //console.log(queryPlayer);
+                // console.log(queryPlayer);
                 mentionedPlayer = emptyOrRows(await mysqlQuery('select * from `Players` where `game_player_name` like ?', ['%' + queryPlayer + ',%']));
                 mentionedGame = emptyOrRows(await mysqlQuery('select * from `Games` where `game` = ?', [turnNotificationObject.value1]));
+                // if (mentionedPlayer.lenght < 1) {
+                //     mentionedPlayer = queryPlayer;
+                // }
+                // if (mentionedGame.length < 1) {
+                //     mentionedGame = turnNotificationObject.value1;
+                // }
                 returnStatus = await civ6Notification(turnNotificationObject, mentionedPlayer, mentionedGame);
             } catch (error) {
                 console.log(`${currentDateTime()} : ERR : Error occurred while getting game or player from database: ${error}`);
@@ -108,6 +114,12 @@ webListener.post(/^(\/api|\/game)\/(Civ6|ow)\/([a-zA-Z0-9]+)/, async (request, r
                 let queryPlayer = turnNotificationObject.player.replace('_', '\_');
                 mentionedPlayer = emptyOrRows(await mysqlQuery('select * from `Players` where `game_player_name` like ?', ['%' + queryPlayer + '%']));
                 mentionedGame = emptyOrRows(await mysqlQuery('select * from `Games` where `game` = ?', [turnNotificationObject.game]));
+                // if (mentionedPlayer.lenght < 1) {
+                //     mentionedPlayer = queryPlayer;
+                // }
+                // if (mentionedGame.length < 1) {
+                //     mentionedGame = turnNotificationObject.value1;
+                // }
                 returnStatus = await owNotification(turnNotificationObject, mentionedPlayer, mentionedGame);
             } catch (error) {
                 console.log(`${currentDateTime()} : ERR : Error occurred while getting game or player from database: ${error}`);

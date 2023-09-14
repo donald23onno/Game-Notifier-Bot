@@ -47,8 +47,8 @@ const client = (discordToken) => {
                         let lastMessage = messages.first();
                         if ((Date.now() - lastMessage.createdTimestamp) > keepAliveTime) {
                             let messageToSend = Math.floor(Math.random() * keepAliveMessages.length);
-                            // const messageSend = turnThread.send(`Not much happening here ;) I'll keep the channel alive! Perhaps someone can play a turn in the mean time?`);
-                            const messageSend = turnThread.send(messageToSend);
+                            // messageSend = turnThread.send(`Not much happening here ;) I'll keep the channel alive! Perhaps someone can play a turn in the mean time?`);
+                            messageSend = turnThread.send(messageToSend);
                         };
                     };
                 };
@@ -119,10 +119,11 @@ const civ6Notification = async (turnNotification = {}, mentionedPlayer = [], men
     // value2 = the name of the player.
     // value3 = the current turn in the game.
     const { value1, value2, value3 } = turnNotification;
-    const turnPlayer = existingPlayer(mentionedPlayer, value2);
-    const turnGame = existingGame(turnPlayer, mentionedGame, value3, value1);
+    const turnPlayer = await existingPlayer(mentionedPlayer, value2);
+    const turnGame = await existingGame(turnPlayer, mentionedGame, value3, value1);
+    console.log(turnGame);
     // Actual notification that I'd rather have in the config.json, but for now put here, due to not having a templating library yet.
-    const civ6TurnNotification = `***# NEW TURN #***\nThere is a new turn on a Civilization VI PBC game!\nGo here to launch the game: steam://run/289070/\n\n***# Game information: #***\n**Game:** ${turnGame.gameName}\n**Current player:** ${turnPlayer.mention}\n**Current turn in game:** ${turnGame.currentTurn}\n*Timestamp (UTC):* ${currentDateTime()}\n`;
+    const civ6TurnNotification = `***# NEW TURN #***\nThere is a new turn on a Civilization VI PBC game!\nGo here to launch the game: steam://run/289070/\n\n***# Game information: #***\n**Game:** ${ turnGame.gameName }\n**Current player:** ${ turnPlayer.mention }\n**Current turn in game:** ${ turnGame.currentTurn }\n*Timestamp (UTC):* ${ currentDateTime() }\n`;
     console.log(civ6TurnNotification);
     if (turnGame.hasOwnProperty('channelToNotify')) {
         let results = emptyOrRows(await mysqlQuery('select `last_reported_turn`, `turn_player` from `Games` where `id` = ?', [turnGame.id]));
@@ -151,7 +152,7 @@ const owNotification = async (turnNotification = {}, mentionedPlayer = [], menti
     // player = the name of the player.
     // turn = the current turn in the game.
     const { game, turn, player } = turnNotification;
-	const turnPlayer = existingPlayer(mentionedPlayer, player);
+	const turnPlayer = await existingPlayer(mentionedPlayer, player);
     const turnGame = await existingGame(turnPlayer, mentionedGame, turn, game);
     // Actual notification that I'd rather have in the config.json, but for now put here, due to not having a templating library yet.
     const owTurnNotification = `***# NEW TURN #***\nThere is a new turn on an Old World PBC game!\nGo here to launch the game: com.epicgames.launcher://apps/Nightjar?action=launch&silent=true\n\n***# Game information: #***\n**Game:** ${turnGame.gameName}\n**Current player:** ${turnPlayer.mention}\n**Current turn in game:** ${turnGame.currentTurn}\n*Timestamp (UTC):* ${currentDateTime()}\n`;
@@ -187,7 +188,7 @@ const sendMessageToChannel = async (messageToSend, channelId) => {
 	};
 };
 
-const existingPlayer = (playerArray = [], turnObjectPlayer = '') => {
+const existingPlayer = async (playerArray = [], turnObjectPlayer = '') => {
     if (playerArray.length > 0) {
         return playerObject = {
             'id': playerArray[0].id,
