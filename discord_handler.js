@@ -125,7 +125,7 @@ const civ6Notification = async (turnNotification = {}, mentionedPlayer = [], men
     const { value1, value2, value3 } = turnNotification;
     const turnPlayer = await existingPlayer(mentionedPlayer, value2);
     const turnGame = await existingGame(turnPlayer, mentionedGame, value3, value1);
-    console.log(turnGame);
+    // console.log(turnGame);
     // Actual notification that I'd rather have in the config.json, but for now put here, due to not having a templating library yet.
     const civ6TurnNotification = `***# NEW TURN #***\nThere is a new turn on a Civilization VI PBC game!\nGo here to launch the game: steam://run/289070/\n\n***# Game information: #***\n**Game:** ${ turnGame.gameName }\n**Current player:** ${ turnPlayer.mention }\n**Current turn in game:** ${ turnGame.currentTurn }\n*Timestamp (UTC):* ${ currentDateTime() }\n`;
     console.log(civ6TurnNotification);
@@ -141,7 +141,7 @@ const civ6Notification = async (turnNotification = {}, mentionedPlayer = [], men
                 try {
                     let results = await mysqlQuery('update `Games` set `last_reported_turn` = ?, `turn_player` = ?, `last_change` = current_timestamp() where `id` = ?', [turnGame.currentTurn, turnGame.currentPlayer, turnGame.id]);
                 } catch (error) {
-                    console.log(`ERR : An error occured on updating database: ${error}`);
+                    console.log(`ERR : While executing 'civ6Notification', an error occured on updating database: ${error}`);
                 };
             };
             sendMessageToChannel(civ6TurnNotification, turnGame.channelToNotify);
@@ -216,7 +216,7 @@ const existingGame = async (playerObject = {}, gameArray = [], turnObjectTurn = 
         try {
             let results = await mysqlQuery('update `Games` set `last_reported_turn` = ?, `turn_player` = ?, `last_change` = current_timestamp() where `id` = ?', [turnObjectTurn, playerObject.id, gameArray.id]);
         } catch (error) {
-            console.log(`ERR : An error occured on updating database: ${error}`);
+            console.log(`ERR : While executing 'existingGame', an error occured on updating database: ${error}`);
         };
         return gameObject = {
             'id': gameArray[0].id,
