@@ -49,7 +49,7 @@ webListener.post(/^(\/api|\/game)\/(Civ6|ow)\/([a-zA-Z0-9]+)/, async (request, r
     let reportedGame = request.params['1'].toLowerCase();
     let reportingUser = request.params['2'].toLowerCase();
     let turnNotificationObject = Object.assign({ reportingUser: reportingUser, reportedGame: reportedGame }, request.body);
-    console.log(`${ currentDateTime() } : --= New ${ reportedGame } turn notification received! =--`);
+    console.log(`${currentDateTime()} : --= New ${reportedGame} turn notification received! =--`);
     // Updating the notificationCache asap, to prevent double notifications. But only if a valid API key was used!
     let validApiKey = checkActiveApiKey(turnNotificationObject.reportingUser);
     if (!validApiKey) {

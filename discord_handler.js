@@ -30,7 +30,7 @@ const client = (discordToken) => {
     bot.once('ready', () => {
         bot.user.setActivity('for new turns!', { type: 'WATCHING' });
         console.log('Bot is now finished loading and... Ready!');
-        console.log(`Current time is: ${ currentDateTime() }`);
+        console.log(`Current time is: ${currentDateTime()}`);
         console.log('-----------------------------------------------------------------------------------');
         setInterval(async () => {
             let results = emptyOrRows(await mysqlQuery('select `game`, `discord_channel_id`, `last_change` from `Games` where `active` = 1'));
@@ -42,7 +42,7 @@ const client = (discordToken) => {
                 	// console.log(activeGame);
                 	// console.log(`-----------------------------------------------------------------------------------`);
                     let turnThread = await bot.channels.fetch(activeGame.discord_channel_id); //Test thread on my own server
-                    // console.log(`${ currentDateTime() } : Currently checking:\n`);
+                    // console.log(`${currentDateTime()} : Currently checking:\n`);
                     // console.log(turnThread);
                     // console.log('-----------------------------------------------------------------------------------');
                     if (turnThread.isThread()) {
@@ -127,7 +127,7 @@ const civ6Notification = async (turnNotification = {}, mentionedPlayer = [], men
     const turnGame = await existingGame(turnPlayer, mentionedGame, value3, value1);
     // console.log(turnGame);
     // Actual notification that I'd rather have in the config.json, but for now put here, due to not having a templating library yet.
-    const civ6TurnNotification = `***# NEW TURN #***\nThere is a new turn on a Civilization VI PBC game!\nGo here to launch the game: steam://run/289070/\n\n***# Game information: #***\n**Game:** ${ turnGame.gameName }\n**Current player:** ${ turnPlayer.mention }\n**Current turn in game:** ${ turnGame.currentTurn }\n*Timestamp (UTC):* ${ currentDateTime() }\n`;
+    const civ6TurnNotification = `***# NEW TURN #***\nThere is a new turn on a Civilization VI PBC game!\nGo here to launch the game: steam://run/289070/\n\n***# Game information: #***\n**Game:** ${turnGame.gameName}\n**Current player:** ${turnPlayer.mention}\n**Current turn in game:** ${turnGame.currentTurn}\n*Timestamp (UTC):* ${currentDateTime()}\n`;
     console.log(civ6TurnNotification);
     if (turnGame.hasOwnProperty('channelToNotify')) {
         let results = emptyOrRows(await mysqlQuery('select `last_reported_turn`, `turn_player` from `Games` where `id` = ?', [turnGame.id]));
@@ -136,8 +136,8 @@ const civ6Notification = async (turnNotification = {}, mentionedPlayer = [], men
             returnStatus = 200;
         } else {
             if (results.length > 0) {
-                console.log(`${ currentDateTime } : Logging db-query parameters:`);
-                console.log(`currentTurn: ${ turnGame.currentTurn } \ncurrentPlayer: ${ turnGame.currentPlayer } \ngame id: ${ turnGame.id }`);
+                // console.log(`${currentDateTime} : Logging db-query parameters:`);
+                // console.log(`currentTurn: ${turnGame.currentTurn} \ncurrentPlayer: ${turnGame.currentPlayer} \ngame id: ${turnGame.id}`);
                 try {
                     let results = await mysqlQuery('update `Games` set `last_reported_turn` = ?, `turn_player` = ?, `last_change` = current_timestamp() where `id` = ?', [turnGame.currentTurn, turnGame.currentPlayer, turnGame.id]);
                 } catch (error) {
@@ -214,7 +214,7 @@ const existingGame = async (playerObject = {}, gameArray = [], turnObjectTurn = 
     if (gameArray.length > 0) {
         // some code to deal with a know game
         try {
-            let results = await mysqlQuery('update `Games` set `last_reported_turn` = ?, `turn_player` = ?, `last_change` = current_timestamp() where `id` = ?', [turnObjectTurn, playerObject.id, gameArray.id]);
+            let results = await mysqlQuery('update `Games` set `last_reported_turn` = ?, `turn_player` = ?, `last_change` = current_timestamp() where `id` = ?', [turnObjectTurn, playerObject.id, gameArray[0].id]);
         } catch (error) {
             console.log(`ERR : While executing 'existingGame', an error occured on updating database: ${error}`);
         };
