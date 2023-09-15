@@ -213,11 +213,11 @@ const existingPlayer = async (playerArray = [], turnObjectPlayer = '') => {
 const existingGame = async (playerObject = {}, gameArray = [], turnObjectTurn = '', turnObjectGame = '') => {
     if (gameArray.length > 0) {
         // some code to deal with a know game
-        try {
-            let results = await mysqlQuery('update `Games` set `last_reported_turn` = ?, `turn_player` = ?, `last_change` = current_timestamp() where `id` = ?', [turnObjectTurn, playerObject.id, gameArray[0].id]);
-        } catch (error) {
-            console.log(`ERR : While executing 'existingGame', an error occured on updating database: ${error}`);
-        };
+        // try {
+        //     let results = await mysqlQuery('update `Games` set `last_reported_turn` = ?, `turn_player` = ?, `last_change` = current_timestamp() where `id` = ?', [turnObjectTurn, playerObject.id, gameArray[0].id]);
+        // } catch (error) {
+        //     console.log(`ERR : While executing 'existingGame', an error occured on updating database: ${error}`);
+        // };
         return gameObject = {
             'id': gameArray[0].id,
             'currentTurn': turnObjectTurn,
