@@ -21,3 +21,7 @@ DB_PORT=3306
 DB_PASS=<password going with your database user>
 DB_NAME=gamenotifierbot_v1
 ```
+### Compatibility
+So far I have ran this bot successfully on node v16, v18 and v20. Latest npm that I have this running with is 10.1.0.
+It should work with newer versions as well, but might need slight tweaking.
+The bot is developed and tested on my debian distro.
