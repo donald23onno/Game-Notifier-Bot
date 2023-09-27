@@ -38,9 +38,9 @@ const client = (discordToken) => {
                 // Iterate over active games to see if the turn notification channel needs a keep alive message.
                 // We only need to do that if the channel is a thread though.
                 for (let activeGame of results) {
-                	// console.log(`${currentDateTime()} : Currently checking:`);
-                	// console.log(activeGame);
-                	// console.log(`-----------------------------------------------------------------------------------`);
+                    // console.log(`${currentDateTime()} : Currently checking:`);
+                    // console.log(activeGame);
+                    // console.log(`-----------------------------------------------------------------------------------`);
                     let turnThread = await bot.channels.fetch(activeGame.discord_channel_id); //Test thread on my own server
                     // console.log(`${currentDateTime()} : Currently checking:\n`);
                     // console.log(turnThread);
@@ -66,7 +66,7 @@ const client = (discordToken) => {
 const discordCommandHandler = async (interaction) => {
     // Let's go for slash commands!
     if (!interaction.isCommand()) return;
-    
+
     switch (interaction.commandName) {
         case 'ping':
             await interaction.reply('Pong!');
@@ -109,7 +109,7 @@ const discordReply = async (message) => {
                 break;
             default:
                 console.log('ERR: not a recognized command!');
-                message.reply('That is not a recognized command, feel free to try again :)');
+            // message.reply('That is not a recognized command, feel free to try again :)');
         }
     } catch (error) {
         console.log(`ERR : An error occurred: ${error}`);
@@ -158,7 +158,7 @@ const owNotification = async (turnNotification = {}, mentionedPlayer = [], menti
     // player = the name of the player.
     // turn = the current turn in the game.
     const { game, turn, player } = turnNotification;
-	const turnPlayer = await existingPlayer(mentionedPlayer, player);
+    const turnPlayer = await existingPlayer(mentionedPlayer, player);
     const turnGame = await existingGame(turnPlayer, mentionedGame, turn, game);
     // Actual notification that I'd rather have in the config.json, but for now put here, due to not having a templating library yet.
     const owTurnNotification = `***# NEW TURN #***\nThere is a new turn on an Old World PBC game!\nGo here to launch the game: com.epicgames.launcher://apps/Nightjar?action=launch&silent=true\n\n***# Game information: #***\n**Game:** ${turnGame.gameName}\n**Current player:** ${turnPlayer.mention}\n**Current turn in game:** ${turnGame.currentTurn}\n*Timestamp (UTC):* ${currentDateTime()}\n`;
@@ -177,11 +177,11 @@ const owNotification = async (turnNotification = {}, mentionedPlayer = [], menti
 
 const sendMessageToChannel = async (messageToSend, channelId) => {
     // This will send a message to a Discord channel (or thread).
-	try {
-    	let channel = await bot.channels.fetch(channelId);
-	    channel.send(messageToSend);
+    try {
+        let channel = await bot.channels.fetch(channelId);
+        channel.send(messageToSend);
     } catch (error) {
-    	if (error.message.includes('Unknown Channel')) {
+        if (error.message.includes('Unknown Channel')) {
             try {
                 let user = await bot.users.fetch(channelId);
                 user.send(messageToSend);
@@ -191,7 +191,7 @@ const sendMessageToChannel = async (messageToSend, channelId) => {
         } else {
             console.log(`ERR : An error occurred: ${error}`);
         };
-	};
+    };
 };
 
 const existingPlayer = async (playerArray = [], turnObjectPlayer = '') => {
