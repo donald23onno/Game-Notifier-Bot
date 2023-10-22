@@ -2,7 +2,7 @@ module.exports = {
   apps : [{
     name: 'GameNotifierBot',
     script: './app.js',
-    watch: ['.'],
+    watch: [],
     ignore_watch: ['node_modules']
   }]
 }

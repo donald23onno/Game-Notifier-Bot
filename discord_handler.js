@@ -33,7 +33,7 @@ const client = (discordToken) => {
         console.log(`Current time is: ${currentDateTime()}`);
         console.log('-----------------------------------------------------------------------------------');
         setInterval(async () => {
-            let results = emptyOrRows(await mysqlQuery('select `game`, `discord_channel_id`, `last_change` from `Games` where `active` = 1'));
+            let results = emptyOrRows(await mysqlQuery('select `last_reported_turn`, `turn_player`, `game`, `discord_channel_id`, `last_change` from `Games` where `active` = 1'));
             if (results.length > 0) {
                 // Iterate over active games to see if the turn notification channel needs a keep alive message.
                 // We only need to do that if the channel is a thread though.
@@ -49,6 +49,8 @@ const client = (discordToken) => {
                         let messages = await turnThread.messages.fetch({ limit: 1 });
                         let lastMessage = messages.first();
                         if ((Date.now() - lastMessage.createdTimestamp) > keepAliveTime) {
+                            // if (activeGame.last_change)
+                            console.log(`last change of currently checked game: ${activeGame.last_change}`);
                             let messageToSend = Math.floor(Math.random() * keepAliveMessages.length);
                             // messageSend = turnThread.send(`Not much happening here ;) I'll keep the channel alive! Perhaps someone can play a turn in the mean time?`);
                             // let messageSend = turnThread.send(messageToSend);
