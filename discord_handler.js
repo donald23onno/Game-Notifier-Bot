@@ -33,7 +33,7 @@ const client = (discordToken) => {
         console.log(`Current time is: ${currentDateTime()}`);
         console.log('-----------------------------------------------------------------------------------');
         setInterval(async () => {
-            let results = emptyOrRows(await mysqlQuery('select `last_reported_turn`, `turn_player`, `game`, `discord_channel_id`, UNIX_TIMESTAMP(`last_change`) as last_timestamp from `Games` where `active` = 1'));
+            let results = emptyOrRows(await mysqlQuery('select `id`, `last_reported_turn`, `turn_player`, `game`, `discord_channel_id`, UNIX_TIMESTAMP(`last_change`) as last_timestamp from `Games` where `active` = 1'));
             if (results.length > 0) {
                 // Iterate over active games to see if the turn notification channel needs a keep alive message.
                 // We only need to do that if the channel is a thread though.
@@ -53,12 +53,17 @@ const client = (discordToken) => {
                             // console.log(`activeGame is: `);
                             // console.log(activeGame);
                             // console.log(`---------------------------------------`);
-                            if ((activeGame.last_timestamp / (3 * keepAliveTime)) >= 1) {
+                            if ((Date.now() - activeGame.last_timestamp) > (3 * keepAliveTime)) {
                                 // What to do when it's been three times the keepAliveTime (usually this amounts to three days)
                                 let playerToNotify = emptyOrRows(await mysqlQuery('select * from `Players` where `id` = ?', [activeGame.turn_player]));
                                 // console.log(playerToNotify);
                                 messageToSend = `It's been a while since a turn was played. The current turn is with <@!${playerToNotify[0].discord_player_id}>. Perhaps an extra ping helps :face_with_peeking_eye: `;
                                 // messageToSend = keepAliveMessages[Math.floor(Math.random() * keepAliveMessages.length)];
+                                try {
+                                    let results = await mysqlQuery('update `Games` set `last_change` = current_timestamp() where `id` = ?', [activeGame.id]);
+                                } catch (error) {
+                                    console.log(`ERR : While executing 'keepAlive checks', an error occured on updating database: ${error}`);
+                                };
                             } else {
                                 // Regular keep-alive-message
                                 messageToSend = keepAliveMessages[Math.floor(Math.random() * keepAliveMessages.length)];
