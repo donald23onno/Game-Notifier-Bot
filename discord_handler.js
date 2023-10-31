@@ -50,11 +50,16 @@ const client = (discordToken) => {
                         let lastMessage = messages.first();
                         let messageToSend = '';
                         if ((Date.now() - lastMessage.createdTimestamp) > keepAliveTime) {
-                            // console.log(`activeGame is: `);
-                            // console.log(activeGame);
-                            // console.log(`---------------------------------------`);
-                            if ((Date.now() - activeGame.last_timestamp) > (3 * keepAliveTime)) {
+                            console.log(`lastMessage.createdTimestamp is: ${lastMessage.createdTimestamp}`);
+                            console.log(`activeGame is: `);
+                            console.log(activeGame);
+                            console.log(`Date.now() is: ${Date.now()}`);
+                            let longTimeNoSee = 3 * keepAliveTime;
+                            console.log(`3 * keepalive is: ${longTimeNoSee}`);
+                            console.log(`---------------------------------------`);
+                            if (((Date.now() / 1000) - activeGame.last_timestamp) > longTimeNoSee) {
                                 // What to do when it's been three times the keepAliveTime (usually this amounts to three days)
+                                console.log(`INFO : We think it's been a while since we pinged someone, let's ping the current player!`);
                                 let playerToNotify = emptyOrRows(await mysqlQuery('select * from `Players` where `id` = ?', [activeGame.turn_player]));
                                 // console.log(playerToNotify);
                                 messageToSend = `It's been a while since a turn was played. The current turn is with <@!${playerToNotify[0].discord_player_id}>. Perhaps an extra ping helps :face_with_peeking_eye: `;
