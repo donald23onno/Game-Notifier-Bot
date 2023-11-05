@@ -50,20 +50,19 @@ const client = (discordToken) => {
                         let lastMessage = messages.first();
                         let messageToSend = '';
                         if ((Date.now() - lastMessage.createdTimestamp) > keepAliveTime) {
-                            console.log(`lastMessage.createdTimestamp is: ${lastMessage.createdTimestamp}`);
-                            console.log(`activeGame is: `);
-                            console.log(activeGame);
-                            console.log(`Date.now() is: ${Date.now()}`);
                             let longTimeNoSee = 3 * keepAliveTime / 1000;
-                            console.log(`3 * keepalive is: ${longTimeNoSee}`);
-                            console.log(`---------------------------------------`);
+                            // console.log(`lastMessage.createdTimestamp is: ${lastMessage.createdTimestamp}`);
+                            // console.log(`activeGame is: `);
+                            // console.log(activeGame);
+                            // console.log(`Date.now() is: ${Date.now()}`);
+                            // console.log(`3 * keepalive is: ${longTimeNoSee}`);
+                            // console.log(`---------------------------------------`);
                             if (((Date.now() / 1000) - activeGame.last_timestamp) > longTimeNoSee) {
                                 // What to do when it's been three times the keepAliveTime (usually this amounts to three days)
                                 console.log(`INFO : We think it's been a while since we pinged someone, let's ping the current player!`);
                                 let playerToNotify = emptyOrRows(await mysqlQuery('select * from `Players` where `id` = ?', [activeGame.turn_player]));
                                 // console.log(playerToNotify);
                                 messageToSend = `It's been a while since a turn was played. The current turn is with <@!${playerToNotify[0].discord_player_id}>. Perhaps an extra ping helps :face_with_peeking_eye: `;
-                                // messageToSend = keepAliveMessages[Math.floor(Math.random() * keepAliveMessages.length)];
                                 try {
                                     let results = await mysqlQuery('update `Games` set `last_change` = current_timestamp() where `id` = ?', [activeGame.id]);
                                 } catch (error) {
