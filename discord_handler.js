@@ -54,7 +54,7 @@ const client = (discordToken) => {
                             console.log(`activeGame is: `);
                             console.log(activeGame);
                             console.log(`Date.now() is: ${Date.now()}`);
-                            let longTimeNoSee = 3 * keepAliveTime;
+                            let longTimeNoSee = 3 * keepAliveTime / 1000;
                             console.log(`3 * keepalive is: ${longTimeNoSee}`);
                             console.log(`---------------------------------------`);
                             if (((Date.now() / 1000) - activeGame.last_timestamp) > longTimeNoSee) {
