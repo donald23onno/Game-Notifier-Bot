@@ -38,7 +38,7 @@ const currentDateTime = () => {
 
 const createNotificationCache = async () => {
     notificationCache = new Map();
-    let activeGames = emptyOrRows(await mysqlQuery('select `game`, `last_reported_turn`, `turn_player` from `Games` where `active` = 1 and `game_name` = \'Civ6\''));
+    let activeGames = emptyOrRows(await mysqlQuery('select `game`, `last_reported_turn`, `turn_player` from `Games` where `active` = 1')); // and `game_name` = \'Civ6\'
     console.log(activeGames);
     for (let game of activeGames) {
         notificationCache.set(game.game, { lastTurn: game.last_reported_turn, lastPlayer: game.turn_player });

@@ -60,14 +60,19 @@ const client = (discordToken) => {
                             if (((Date.now() / 1000) - activeGame.last_timestamp) > longTimeNoSee) {
                                 // What to do when it's been three times the keepAliveTime (usually this amounts to three days)
                                 console.log(`INFO : We think it's been a while since we pinged someone, let's ping the current player!`);
-                                let playerToNotify = emptyOrRows(await mysqlQuery('select * from `Players` where `id` = ?', [activeGame.turn_player]));
-                                // console.log(playerToNotify);
-                                messageToSend = `It's been a while since a turn was played. The current turn is with <@!${playerToNotify[0].discord_player_id}>. Perhaps an extra ping helps :face_with_peeking_eye: `;
-                                try {
-                                    let results = await mysqlQuery('update `Games` set `last_change` = current_timestamp() where `id` = ?', [activeGame.id]);
-                                } catch (error) {
-                                    console.log(`ERR : While executing 'keepAlive checks', an error occured on updating database: ${error}`);
-                                };
+                                if (activeGame.turn_player === null || activeGame.turn_player == 'Null') {
+                                    console.log(`INFO : Unfortunately though, there is no current player known! So pinging no-one...`);
+                                    messageToSend = keepAliveMessages[Math.floor(Math.random() * keepAliveMessages.length)];
+                                } else {
+                                    try {
+                                        let playerToNotify = emptyOrRows(await mysqlQuery('select * from `Players` where `id` = ?', [activeGame.turn_player]));
+                                        // console.log(playerToNotify);
+                                        messageToSend = `It's been a while since a turn was played. The current turn is with <@!${playerToNotify[0].discord_player_id}>. Perhaps an extra ping helps :face_with_peeking_eye: `;
+                                        let results = await mysqlQuery('update `Games` set `last_change` = current_timestamp() where `id` = ?', [activeGame.id]);
+                                    } catch (error) {
+                                        console.log(`ERR : While executing 'keepAlive checks', an error occured on updating database: ${error}`);
+                                    };
+                                }
                             } else {
                                 // Regular keep-alive-message
                                 messageToSend = keepAliveMessages[Math.floor(Math.random() * keepAliveMessages.length)];
@@ -181,16 +186,32 @@ const owNotification = async (turnNotification = {}, mentionedPlayer = [], menti
     const turnPlayer = await existingPlayer(mentionedPlayer, player);
     const turnGame = await existingGame(turnPlayer, mentionedGame, turn, game);
     // Actual notification that I'd rather have in the config.json, but for now put here, due to not having a templating library yet.
-    const owTurnNotification = `***# NEW TURN #***\nThere is a new turn on an Old World PBC game!\nGo here to launch the game: com.epicgames.launcher://apps/Nightjar?action=launch&silent=true\n\n***# Game information: #***\n**Game:** ${turnGame.gameName}\n**Current player:** ${turnPlayer.mention}\n**Current turn in game:** ${turnGame.currentTurn}\n*Timestamp (UTC):* ${currentDateTime()}\n`;
+    const owTurnNotification = `***# NEW TURN #***\nThere is a new turn on an Old World PBC game!\nLaunch the game using your favorite launcher!!\n\n***# Game information: #***\n**Game:** ${turnGame.gameName}\n**Current player:** ${turnPlayer.mention}\n**Current turn in game:** ${turnGame.currentTurn}\n*Timestamp (UTC):* ${currentDateTime()}\n`;
     console.log(owTurnNotification);
-    if (turnGame.hasOwnProperty('channelToNotify')) {
-        if (turnGame.hasOwnProperty('id') && turnGame.id !== null && mentionedGame[0].last_reported_turn == turnGame.currentTurn && mentionedGame[0].turn_player == turnGame.currentPlayer) {
-            console.log(`Turn number ${turnGame.currentTurn} for player ${Value2} was already reported! Not reporting again.`);
-            returnStatus = 200;
-        } else {
-            sendMessageToChannel(owTurnNotification, turnGame.channelToNotify);
-            returnStatus = 200;
-        }
+    // if (turnGame.hasOwnProperty('channelToNotify')) {
+    //     if (turnGame.hasOwnProperty('id') && turnGame.id !== null && mentionedGame[0].last_reported_turn == turnGame.currentTurn && mentionedGame[0].turn_player == turnGame.currentPlayer) {
+    //         console.log(`Turn number ${turnGame.currentTurn} for player ${Value2} was already reported! Not reporting again.`);
+    //         returnStatus = 200;
+    //     } else {
+    //         sendMessageToChannel(owTurnNotification, turnGame.channelToNotify);
+    //         returnStatus = 200;
+    //     }
+    let results = emptyOrRows(await mysqlQuery('select `last_reported_turn`, `turn_player` from `Games` where `id` = ?', [turnGame.id]));
+    if (results.length > 0 && results[0].last_reported_turn == turnGame.currentTurn && results[0].turn_player == turnGame.currentPlayer) {
+        console.log(`Turn number ${turnGame.currentTurn} for player ${value2} was already reported! Not reporting again.`);
+        returnStatus = 200;
+    } else {
+        if (results.length > 0) {
+            // console.log(`${currentDateTime} : Logging db-query parameters:`);
+            // console.log(`currentTurn: ${turnGame.currentTurn} \ncurrentPlayer: ${turnGame.currentPlayer} \ngame id: ${turnGame.id}`);
+            try {
+                let results = await mysqlQuery('update `Games` set `last_reported_turn` = ?, `turn_player` = ?, `last_change` = current_timestamp() where `id` = ?', [turnGame.currentTurn, turnGame.currentPlayer, turnGame.id]);
+            } catch (error) {
+                console.log(`ERR : While executing 'owNotification', an error occured on updating database: ${error}`);
+            };
+        };
+        sendMessageToChannel(owTurnNotification, turnGame.channelToNotify);
+        returnStatus = 200;
     };
     return returnStatus;
 };

@@ -105,8 +105,8 @@ webListener.post(/^(\/api|\/game)\/(Civ6|ow)\/([a-zA-Z0-9]+)/, async (request, r
         case 'ow':
             returnStatus = 500;
             try {
-                const playerExtractRegex = /\(([^)]+)\)/;
-                turnNotificationObject.player = playerExtractRegex.exec(turnNotificationObject.player)[1];
+                // const playerExtractRegex = /\(([^)]+)\)/;
+                // turnNotificationObject.player = playerExtractRegex.exec(turnNotificationObject.player)[1];
                 if (!turnNotificationObject.hasOwnProperty('game') && !turnNotificationObject.hasOwnProperty('turn') && !turnNotificationObject.hasOwnProperty('player')) {
                     returnStatus = 400;
                     throw ('Critical properties are missing from the incoming turn notification! Aborting\n');
