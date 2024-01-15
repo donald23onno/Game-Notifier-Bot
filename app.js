@@ -87,7 +87,7 @@ webListener.post(/^(\/api|\/game)\/(Civ6|ow)\/([a-zA-Z0-9]+)/, async (request, r
                 let queryPlayer = turnNotificationObject.value2.replace(/_/g, '\\_');
                 // console.log(queryPlayer);
                 mentionedPlayer = emptyOrRows(await mysqlQuery('select * from `Players` where `game_player_name` like ?', ['%' + queryPlayer + ',%']));
-                mentionedGame = emptyOrRows(await mysqlQuery('select * from `Games` where `game` = ?', [turnNotificationObject.value1]));
+                mentionedGame = emptyOrRows(await mysqlQuery('select * from `Games` where `active` = 1 and `game` = ?', [turnNotificationObject.value1]));
                 // if (mentionedPlayer.lenght < 1) {
                 //     mentionedPlayer = queryPlayer;
                 // }
@@ -113,7 +113,7 @@ webListener.post(/^(\/api|\/game)\/(Civ6|ow)\/([a-zA-Z0-9]+)/, async (request, r
                 };
                 let queryPlayer = turnNotificationObject.player.replace('_', '\_');
                 mentionedPlayer = emptyOrRows(await mysqlQuery('select * from `Players` where `game_player_name` like ?', ['%' + queryPlayer + '%']));
-                mentionedGame = emptyOrRows(await mysqlQuery('select * from `Games` where `game` = ?', [turnNotificationObject.game]));
+                mentionedGame = emptyOrRows(await mysqlQuery('select * from `Games` where `active` = 1 and `game` = ?', [turnNotificationObject.game]));
                 // if (mentionedPlayer.lenght < 1) {
                 //     mentionedPlayer = queryPlayer;
                 // }
