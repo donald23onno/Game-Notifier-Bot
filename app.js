@@ -94,7 +94,12 @@ webListener.post(/^(\/api|\/game)\/(Civ6|ow)\/([a-zA-Z0-9]+)/, async (request, r
                 // if (mentionedGame.length < 1) {
                 //     mentionedGame = turnNotificationObject.value1;
                 // }
-                returnStatus = await civ6Notification(turnNotificationObject, mentionedPlayer, mentionedGame);
+                if (mentionedGame == []) {
+                    console.log(`${currentDateTime()} : Turn notification for non-existent or non-active game, no further action needed.`);
+                    returnStatus = 200;
+                } else {
+                    returnStatus = await civ6Notification(turnNotificationObject, mentionedPlayer, mentionedGame);
+                }
             } catch (error) {
                 console.log(`${currentDateTime()} : ERR : Error occurred while getting game or player from database: ${error}`);
             };
@@ -120,7 +125,12 @@ webListener.post(/^(\/api|\/game)\/(Civ6|ow)\/([a-zA-Z0-9]+)/, async (request, r
                 // if (mentionedGame.length < 1) {
                 //     mentionedGame = turnNotificationObject.value1;
                 // }
-                returnStatus = await owNotification(turnNotificationObject, mentionedPlayer, mentionedGame);
+                if (mentionedGame == []) {
+                    console.log(`${currentDateTime()} : Turn notification for non-existent or non-active game, no further action needed.`);
+                    returnStatus = 200;
+                } else {
+                    returnStatus = await owNotification(turnNotificationObject, mentionedPlayer, mentionedGame);
+                }
             } catch (error) {
                 console.log(`${currentDateTime()} : ERR : Error occurred while getting game or player from database: ${error}`);
             };
