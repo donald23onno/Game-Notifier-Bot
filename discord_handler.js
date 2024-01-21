@@ -152,7 +152,7 @@ const civ6Notification = async (turnNotification = {}, mentionedPlayer = [], men
     const turnGame = await existingGame(turnPlayer, mentionedGame, value3, value1);
     // console.log(turnGame);
     // Actual notification that I'd rather have in the config.json, but for now put here, due to not having a templating library yet.
-    const civ6TurnNotification = `***# NEW TURN #***\nThere is a new turn on a Civilization VI PBC game!\nGo here to launch the game: steam://run/289070/\n\n***# Game information: #***\n**Game:** ${turnGame.gameName}\n**Current player:** ${turnPlayer.mention}\n**Current turn in game:** ${turnGame.currentTurn}\n*Timestamp (UTC):* ${currentDateTime()}\n`;
+    const civ6TurnNotification = `***# NEW TURN #***\nThere is a new turn on a Civilization VI PBC game!\nLaunch the game using your favorite launcher!!\n\n***# Game information: #***\n**Game:** ${turnGame.gameName}\n**Current player:** ${turnPlayer.mention}\n**Current turn in game:** ${turnGame.currentTurn}\n*Timestamp (UTC):* ${currentDateTime()}\n`;
     console.log(civ6TurnNotification);
     if (turnGame.hasOwnProperty('channelToNotify')) {
         let results = emptyOrRows(await mysqlQuery('select `last_reported_turn`, `turn_player` from `Games` where `id` = ?', [turnGame.id]));
