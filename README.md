@@ -43,3 +43,42 @@ DB_NAME=gamenotifierbot_v1
 So far I have ran this bot successfully on node v16, v18 and v20. Latest npm that I have this running with is 10.1.0.
 It should work with newer versions as well, but might need slight tweaking.
 The bot is developed and tested on my debian distro.
+
+
+### Current runtime target
+
+The codebase now builds from TypeScript and targets Node 20 or newer.
+
+
+### Build and run
+
+Install dependencies:
+```
+npm install
+```
+
+Compile the TypeScript sources:
+```
+npm run build
+```
+
+Run the compiled bot through the existing wrapper entrypoint:
+```
+npm start
+```
+
+For local development with automatic reload on source changes:
+```
+npm run dev
+```
+
+
+### Slash command deployment
+
+To deploy slash commands to a guild, use:
+```
+npm run deploy:commands
+```
+
+The deployment script accepts `DISCORD_APP_ID`, `DISCORD_GUILD_ID`, and `DISCORD_TOKEN` or `TOKEN` from the environment.
+If you already use a local `commands/config.json`, that file still works as a fallback.
